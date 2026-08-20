@@ -126,6 +126,10 @@
             color: #052e16;
         }
 
+        .hidden-frames {
+            display: none;
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 0.6; }
             50% { opacity: 1; }
@@ -152,48 +156,32 @@
         </div>
     </div>
 
+    <div class="hidden-frames">
+        <iframe id="frame-v4" src="https://codedroider.github.io/ip/v4" onload="extractIP('frame-v4', 'ipv4', 'btn-v4')"></iframe>
+        <iframe id="frame-v6" src="https://codedroider.github.io/ip/v6" onload="extractIP('frame-v6', 'ipv6', 'btn-v6')"></iframe>
+    </div>
+
     <script>
-        async function runIpScript(version, elementId, buttonId) {
+        function extractIP(frameId, elementId, buttonId) {
+            const frame = document.getElementById(frameId);
             const element = document.getElementById(elementId);
             const button = document.getElementById(buttonId);
-            
+
             try {
-                const response = await fetch(`https://github.io{version}`);
-                if (!response.ok) throw new Error();
-                
-                const rawHtml = await response.text();
-                
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(rawHtml, 'text/html');
-                const scriptCode = doc.querySelector('script')?.textContent;
-                
-                if (!scriptCode) throw new Error();
+                const frameDocument = frame.contentDocument || frame.contentWindow.document;
+                const ipText = frameDocument.body.innerText.trim();
 
-                const modifiedCode = scriptCode.replace(
-                    /document\.documentElement\.innerText\s*=\s*/g, 
-                    `window.updateTargetIP('${elementId}', '${buttonId}', `
-                ).replace(/;$/, ');');
-
-                const execute = new Function(modifiedCode);
-                execute();
-
+                if (ipText && ipText.length > 0) {
+                    element.textContent = ipText;
+                    element.classList.remove('loading');
+                    button.style.display = 'block';
+                }
             } catch (error) {
-                element.textContent = 'Не поддерживается провайдером или недоступен';
+                element.textContent = 'Не поддерживается или недоступен';
                 element.classList.remove('loading');
                 element.style.color = '#ef4444';
             }
         }
-
-        window.updateTargetIP = function(elementId, buttonId, ipAddress) {
-            const element = document.getElementById(elementId);
-            const button = document.getElementById(buttonId);
-            
-            if (ipAddress) {
-                element.textContent = ipAddress.trim();
-                element.classList.remove('loading');
-                button.style.display = 'block';
-            }
-        };
 
         function copyIp(elementId, buttonId) {
             const ipText = document.getElementById(elementId).textContent;
@@ -209,9 +197,6 @@
                 }, 2000);
             });
         }
-
-        runIpScript('v4', 'ipv4', 'btn-v4');
-        runIpScript('v6', 'ipv6', 'btn-v6');
     </script>
 
 </body>
