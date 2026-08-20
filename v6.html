@@ -1,1 +1,5 @@
-
+<script>
+    fetch('https://api-ipv6.ip.sb/ip')
+        .then(res => res.text())
+        .then(ip => document.documentElement.innerText = ip);
+</script>
