@@ -1,6 +1,6 @@
 <script>
-    function getIP(json) {
-        document.documentElement.innerText = json.ip;
-    }
+    fetch('https://api.ipify.org?format=json')
+        .then(res => res.json())
+        .then(data => document.documentElement.innerText = data.ip)
+        .catch(() => document.documentElement.innerText = "Блокировщик мешает загрузке");
 </script>
-<script src="https://api.ipify.org"></script>
